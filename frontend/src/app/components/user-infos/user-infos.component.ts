@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { inject } from '@angular/core';
+import { UpdateUserService } from '../../services/update-user.service';
 
 @Component({
   selector: 'app-user-infos',
@@ -15,4 +17,15 @@ export class UserInfosComponent {
     username: new FormControl(''),
     password: new FormControl(''),
   });
+  private readonly _updateUserService = inject(UpdateUserService);
+  updateUser() {
+    this._updateUserService.updateUser(this.userInfosForm.value as any).subscribe({
+      next: () => {
+        this.userInfosForm.setErrors({ 'updateSuccess': true });
+      },
+      error: () => {
+        this.userInfosForm.setErrors({ 'updateError': true });
+      }
+    });
+  }
 }

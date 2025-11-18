@@ -33,10 +33,22 @@ app.post('/validate-token', authenticateToken, (req, res) => {
     res.json({ message: 'Token Válido', username: req.username });
 });
 app.put('/update-user', authenticateToken, (req, res) => {
-    const { username } = req;
-    const { newData } = req.body;
+    const { newUserInfos } = req.body;
 
-    return res.json({ message: `Usuário ${username} atualizado com sucesso.`, newData });
+    const { name, email, username, password } = newUserInfos;
+
+    if(!name || !email || !username || !password) {
+        return res.status(400).json({ message: 'Todos os campos são obrigatórios.' });
+    }
+    const USER_FOUND = USERS_LIST_BD.findIndex(user => user.username === req.username);
+    if(USER_FOUND === -1) {
+        return res.status(404).json({ message: 'Usuário não encontrado.' });
+    }
+    USERS_LIST_BD[USER_FOUND] = newUserInfos;
+    const newToken = generateTokenOnLogin(username);
+
+    return res.status(200).json({ message: 'Informações do usuário atualizadas com sucesso.', token: newToken });
+
 });
 
 app.listen(PORT, () => {

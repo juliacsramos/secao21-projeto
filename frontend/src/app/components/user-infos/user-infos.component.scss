@@ -98,7 +98,17 @@
             background: linear-gradient(279deg, rgb(77 171 60 / 86%) 4%, rgb(92 158 70) 35%, rgb(131 176 118) 74%);
         }
     }
-
+    &__alert-message {
+        p{
+            font-size: 12px;
+        }
+        __success {
+            color: green;
+        }
+        __error {
+            color: red; 
+        }
+    }
     &__buttons-container {
         display: flex;
         justify-content: space-between;
