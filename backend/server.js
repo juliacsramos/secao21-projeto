@@ -32,6 +32,7 @@ app.post('/login', (req, res) => {
 app.post('/validate-token', authenticateToken, (req, res) => {
     res.json({ message: 'Token Válido', username: req.username });
 });
+
 app.put('/update-user', authenticateToken, (req, res) => {
     const { newUserInfos } = req.body;
 
@@ -50,6 +51,30 @@ app.put('/update-user', authenticateToken, (req, res) => {
     return res.status(200).json({ message: 'Informações do usuário atualizadas com sucesso.', token: newToken });
 
 });
+app.post('/create-user', authenticateToken, (req, res) => {
+    const tokenUsername = req.username;
+    const newUser = req.body;
+    const { name, email, username, password } = newUser;
+
+    if(!name || !email || !username || !password) {
+        return res.status(400).json({ message: 'Todos os campos são obrigatórios.' });
+    }
+
+    const USER_TOKEN_FOUND = USERS_LIST_BD.findIndex(user => user.username === tokenUsername);
+    if(USER_TOKEN_FOUND === -1) {
+        return res.status(404).json({ message: 'Usuário não encontrado.' });
+    }
+    const USER_FOUND = USERS_LIST_BD.findIndex(user => user.username === newUser.username);
+    const USER_ALREADY_REGISTERED = USER_FOUND !== -1;
+
+    if(USER_ALREADY_REGISTERED) {
+        return res.status(409).json({ message: 'Nome de usuário já existe.' });
+    }
+
+    USERS_LIST_BD.push(newUser);
+    return res.status(201).json({ message: 'Usuário criado com sucesso.' });
+    
+})
 
 app.listen(PORT, () => {
     console.log(`O Servidor está rodando no http://localhost:${PORT}`);

@@ -1,6 +1,9 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpHeaders } from '@angular/common/http';
 import { map } from 'rxjs';
+import { IUserRequest } from '../interfaces/user-request.interface';
+import { IUpdateUserResponse } from '../interfaces/update-user-response.interface';
+import { AUTH_TOKEN_ENABLED } from '../interceptors/auth.interceptor';
 
 @Injectable({
   providedIn: 'root'
@@ -8,12 +11,17 @@ import { map } from 'rxjs';
 export class UpdateUserService {
   private readonly _httpClient = inject(HttpClient);
   
-  updateUser(userInfos: { name: string; email: string; username: string; password: string }) {
+  updateUser(userInfos: IUserRequest) {
     const token = localStorage.getItem('token') || '';
-    const headers = new HttpHeaders().set( 'authorization', 'Bearer ' +localStorage.getItem('token')!);
-    return this._httpClient.put<{ message: string; token: string }>('http://localhost:3000/update-user', 
-      userInfos, 
-      { headers, }
+    // const headers = new HttpHeaders().set( 'authorization', 'Bearer ' +localStorage.getItem('token')!);
+    const headers = new HttpHeaders().set('useAuth', 'y');
+
+    return this._httpClient.put<IUpdateUserResponse>('http://localhost:3000/update-user', 
+      userInfos,
+      {
+        headers,
+        context: new HttpContext().set(AUTH_TOKEN_ENABLED, true),
+      }
     ).pipe(
       map((updatedUserResponse) => {
         localStorage.setItem('token', updatedUserResponse.token);

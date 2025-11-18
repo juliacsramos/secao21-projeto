@@ -1,6 +1,8 @@
+import { HttpClient, HttpContext, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { map, Observable } from 'rxjs';
+import { ILoginResponse } from '../interfaces/login-response.interface';
+import { AUTH_TOKEN_ENABLED } from '../interceptors/auth.interceptor';
 
 @Injectable({
   providedIn: 'root'
@@ -8,15 +10,24 @@ import { Observable, map } from 'rxjs';
 export class LoginService {
   private readonly _httpClient = inject(HttpClient);
 
-  login(username: string, password: string): Observable<{ token: string }> {
-    return this._httpClient.post<{ token: string }>('http://localhost:3000/login', { 
-      username, password 
-    }).pipe(
-      map((tokenResponse) => {
-        localStorage.setItem('token', tokenResponse.token);
-        return tokenResponse;
-       })
-    );
-  }
+  login(username: string, password: string): Observable<ILoginResponse> {
+    const headers = new HttpHeaders().set('useAuth', 'n');
 
+    return this._httpClient.post<ILoginResponse>(
+      'http://localhost:3000/login',
+      {
+        username,
+        password,
+      },
+      {
+        headers,
+        context: new HttpContext().set(AUTH_TOKEN_ENABLED, false),
+      }).pipe(
+        map((tokenResponse) => {
+          localStorage.setItem('token', tokenResponse.token);
+
+          return tokenResponse;
+        }),
+      );
+  }
 }
