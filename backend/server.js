@@ -30,7 +30,13 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/validate-token', authenticateToken, (req, res) => {
-    res.json({ message: 'Token Válido' });
+    res.json({ message: 'Token Válido', username: req.username });
+});
+app.put('/update-user', authenticateToken, (req, res) => {
+    const { username } = req;
+    const { newData } = req.body;
+
+    return res.json({ message: `Usuário ${username} atualizado com sucesso.`, newData });
 });
 
 app.listen(PORT, () => {
