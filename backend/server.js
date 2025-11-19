@@ -17,6 +17,7 @@ app.use(cors());
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
 
+
     const USER_FOUND = 
         USERS_LIST_BD.find(user => user.username === username && user.password === password);
 
